@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<qualifier value="dataSource" />
+		<property name="driverClassName">
+			<value>${driver_db}</value>
+		</property>
+		<property name="url">
+			<value>${url_db}</value>
+		</property>
+		<property name="username">
+			<value>${username_db}</value>
+		</property>
+		<property name="password">
+			<value>${password_db}</value>
+		</property>
+		<property name="maxActive" value="100" />
+		<property name="maxWait" value="10" />
+		<property name="maxIdle" value="5" />
+		<property name="defaultAutoCommit" value="true" />
+		<property name="validationQuery" value="select 1 from dual" />
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath:/com/piazza/app/mapper/sql/*.xml"></property>
+		<property name="typeAliasesPackage" value="com.piazza.app.domain" />
+	</bean>
+
+	<bean id="scan" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.piazza.app.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:annotation-driven />
+
+</beans>

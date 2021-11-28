@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.piazza.app.mapper.AppMapper">
+
+	<!-- <select id="getUserList" resultType="java.util.HashMap">
+	<![CDATA[
+		select *
+		  FROM app.app a
+		]]>
+	</select> -->
+
+	<select id="getApp" resultType="com.piazza.app.domain.AppVO">
+	<![CDATA[
+		select type, app_id appId, name, display_price displayPrice, full_price fullPrice, url, category, reg_time regTime, mod_time modTime
+		  FROM app.app a
+		 where app_id = #{appId, jdbcType=VARCHAR}
+	]]>
+	</select>
+
+	<insert id="addApp" parameterType="com.piazza.app.domain.AppVO" >
+		INSERT INTO app.app
+		(	
+			type, app_id, name, display_price, full_price, url, category, reg_time, mod_time
+		)
+		VALUES
+		( 
+			#{type}
+			,#{appId}
+			,#{name}
+			,#{displayPrice}
+			,#{fullPrice}
+			,#{url}
+			,#{category}
+			,now()
+			,now()
+		 )
+	</insert>
+
+	<update id="updateApp" parameterType="com.piazza.app.domain.AppVO">
+		UPDATE app.app
+		<trim prefix="SET" suffixOverrides=",">
+			<if test="displayPrice != null">	
+			display_price = #{displayPrice},
+			</if>
+			<if test="fullPrice != null">	
+			full_price = #{fullPrice},
+			</if>
+			mod_time = now(),
+		</trim>
+		where app_id = #{appId}
+	</update>
+
+	<insert id="addAppHis" parameterType="com.piazza.app.domain.AppVO" >
+		INSERT INTO app.app_his
+		(	
+			type, app_id, name, display_price, full_price, url, category, reg_time, mod_time
+		)
+		VALUES
+		( 
+			#{type}
+			,#{appId}
+			,#{name}
+			,#{displayPrice}
+			,#{fullPrice}
+			,#{url}
+			,#{category}
+			,#{regTime}
+			,#{modTime}
+			,date_format(now(), '%Y-%m-%d 00:00:00')
+			,date_format('9999-12-31 23:59:59', '%Y-%m-%d 23:59:59')
+		 )
+	</insert>
+
+	<update id="updateAppHis" parameterType="com.piazza.app.domain.AppVO">
+		UPDATE app.app
+		<trim prefix="SET" suffixOverrides=",">
+			end_time = date_format(date_add(now(), interval -1 day), '%Y-%m-%d 23:59:59')
+		</trim>
+		where app_id = #{appId}
+		  and end_time = '9999-12-31 23:59:59'
+	</update>
+</mapper>
